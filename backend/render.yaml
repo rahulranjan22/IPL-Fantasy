@@ -2,14 +2,18 @@ services:
   - type: web
     name: ipl-fantasy-api
     runtime: python
-    region: singapore   # closest to India
+    pythonVersion: "3.11.9"
+    region: singapore
     plan: free
+    rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
-    rootDir: backend
+    healthCheckPath: /api/health
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
       - key: DATABASE_URL
-        sync: false        # paste from Supabase dashboard
+        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_ANON_KEY
@@ -21,5 +25,4 @@ services:
       - key: ALLOWED_ORIGINS
         value: https://ipl-fantasy.vercel.app,http://localhost:3000
       - key: CRICAPI_KEY
-        sync: false        # optional — from cricapi.com
-    healthCheckPath: /api/health
+        sync: false
