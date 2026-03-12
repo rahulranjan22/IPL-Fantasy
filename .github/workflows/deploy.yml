@@ -1,0 +1,69 @@
+name: Deploy IPL Fantasy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Backend: Deploy to Render ────────────────────────────────
+  deploy-backend:
+    name: Deploy Flask API → Render
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: Install & lint backend
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          python -c "import app; print('✓ Backend imports OK')"
+
+      - name: Trigger Render Deploy
+        run: |
+          curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}" \
+            -H "Content-Type: application/json" | jq .
+        # Set RENDER_DEPLOY_HOOK in GitHub Secrets:
+        # Render Dashboard → Service → Settings → Deploy Hook → Copy URL
+
+  # ── Frontend: Deploy to Vercel ───────────────────────────────
+  deploy-frontend:
+    name: Deploy Next.js → Vercel
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with: { node-version: '20' }
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL:       ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SUPABASE_URL:  ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON }}
+        run: npm run build
+
+      - name: Deploy to Vercel
+        working-directory: frontend
+        env:
+          VERCEL_TOKEN:   ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID:  ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npm i -g vercel
+          vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+          vercel build --prod --token=$VERCEL_TOKEN
+          vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN

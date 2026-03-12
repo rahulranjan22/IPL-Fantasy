@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  --gold: #FFD700;
+  --orange: #FF6B00;
+  --deep: #08080E;
+  --surface: #0F0F18;
+  --card: #141420;
+  --card2: #1A1A2A;
+  --border: rgba(255, 215, 0, 0.12);
+  --border-hover: rgba(255, 215, 0, 0.3);
+  --text: #EEEEF8;
+  --muted: #6060A0;
+  --green: #00E676;
+  --red: #FF4455;
+  --blue: #4488FF;
+  --purple: #AA44FF;
+  --font-display: 'Bebas Neue', cursive;
+  --font-body: 'Rajdhani', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--deep);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Background ambient glow */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 10%, rgba(255,107,0,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 90%, rgba(255,215,0,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 50% 50%, rgba(68,136,255,0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Grain texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+#__next { position: relative; z-index: 1; }
+
+/* ── Typography ── */
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: 1px; }
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--deep); }
+::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,215,0,0.4); }
+
+/* ── Utilities ── */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ── Animations ── */
+@keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:0.35 } }
+@keyframes fadeUp { from{ opacity:0; transform:translateY(16px) } to{ opacity:1; transform:none } }
+@keyframes slideIn { from{ opacity:0; transform:translateX(-12px) } to{ opacity:1; transform:none } }
+@keyframes shimmer { 0%{ background-position:-200% 0 } 100%{ background-position:200% 0 } }
+@keyframes glow { 0%,100%{ box-shadow:0 0 20px rgba(255,215,0,0.1) } 50%{ box-shadow:0 0 40px rgba(255,215,0,0.25) } }
+@keyframes ticker { 0%{ transform:translateX(100vw) } 100%{ transform:translateX(-100%) } }
+
+.animate-fade-up { animation: fadeUp 0.4s ease both; }
+.animate-pulse { animation: pulse 1.8s ease infinite; }
+
+/* ── Skeleton loader ── */
+.skeleton {
+  background: linear-gradient(90deg, var(--card) 25%, var(--card2) 50%, var(--card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* ── Form elements ── */
+input, select, textarea {
+  font-family: var(--font-body);
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  width: 100%;
+  transition: border-color 0.2s;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--orange); }
+input::placeholder, textarea::placeholder { color: var(--muted); }
+select option { background: var(--card); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+  .container { padding: 0 1rem; }
+}
+@media (max-width: 480px) {
+  .hide-sm { display: none !important; }
+}
