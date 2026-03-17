@@ -7,32 +7,6 @@ on:
     branches: [main]
 
 jobs:
-  # ── Backend: Deploy to Render ────────────────────────────────
-  deploy-backend:
-    name: Deploy Flask API → Render
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
-
-      - name: Install & lint backend
-        working-directory: backend
-        run: |
-          pip install -r requirements.txt
-          python -c "import app; print('✓ Backend imports OK')"
-
-      - name: Trigger Render Deploy
-        run: |
-          curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}" \
-            -H "Content-Type: application/json" | jq .
-        # Set RENDER_DEPLOY_HOOK in GitHub Secrets:
-        # Render Dashboard → Service → Settings → Deploy Hook → Copy URL
-
-  # ── Frontend: Deploy to Vercel ───────────────────────────────
   deploy-frontend:
     name: Deploy Next.js → Vercel
     runs-on: ubuntu-latest
@@ -51,9 +25,10 @@ jobs:
       - name: Build
         working-directory: frontend
         env:
-          NEXT_PUBLIC_API_URL:       ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SUPABASE_URL:  ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CRICAPI_KEY:               ${{ secrets.CRICAPI_KEY }}
         run: npm run build
 
       - name: Deploy to Vercel

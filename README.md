@@ -6,9 +6,9 @@
 | Layer    | Tech                  | Host     |
 |----------|-----------------------|----------|
 | Frontend | Next.js 14 TypeScript | Vercel   |
-| Backend  | Flask (Python) API    | Render   |
 | Database | PostgreSQL            | Supabase |
-| Auth     | Supabase Auth + JWT   | Supabase |
+| Auth     | Supabase Auth         | Supabase |
+| API      | Next.js API Routes    | Vercel   |
 
 ## Pages
 | URL | Page |

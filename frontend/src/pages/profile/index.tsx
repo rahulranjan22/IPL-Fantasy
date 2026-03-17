@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import Layout from '../../components/layout/Layout'
 import { Card, SectionTitle, StatBox, Button, Avatar, EmptyState } from '../../components/ui'
-import { auth as authApi, leaderboard as lbApi } from '../../lib/api'
+import { leaderboard as lbApi } from '../../lib/api'
+import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../lib/store'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
@@ -30,15 +31,11 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      await authApi.me() // verify session
-      // PATCH profile
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json',
-                   'Authorization': `Bearer ${localStorage.getItem('ipl_token')}` },
-        body: JSON.stringify(form),
-      })
-      if (!res.ok) throw new Error('Update failed')
+      const { error } = await supabase
+        .from('profiles')
+        .update({ display_name: form.display_name, avatar_emoji: form.avatar_emoji, updated_at: new Date().toISOString() })
+        .eq('id', user!.id)
+      if (error) throw new Error(error.message)
       await fetchMe()
       toast.success('Profile updated!')
       setEditing(false)

@@ -1,9 +1,32 @@
 // pages/_app.tsx
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
+import { useEffect } from 'react'
+import { supabase } from '../lib/supabase'
+import { useAuthStore } from '../lib/store'
 import '../styles/globals.css'
 
 export default function App({ Component, pageProps }: AppProps) {
+  const { fetchMe, user } = useAuthStore()
+
+  // Sync auth state on mount and when Supabase session changes
+  useEffect(() => {
+    // Check for existing session on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session && !user) fetchMe()
+    })
+
+    // Listen for auth state changes (login, logout, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event) => {
+        if (event === 'SIGNED_IN') fetchMe()
+        if (event === 'SIGNED_OUT') useAuthStore.setState({ user: null })
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
+
   return (
     <>
       <Head>
